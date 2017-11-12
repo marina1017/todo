@@ -1,12 +1,15 @@
 'use strict';
 // key:タスクの文字列　calue:完了しているかどうかの真偽値
 const tasks = new Map();
+const fs = require('fs');
+const fileName = './tasks.json';
 
 // TODOを追加する
 //@param{string} task
 //連想配列に未完了の状態でタスクを追加
 function todo(task) {
     tasks.set(task, false);
+    saveTasks();
 }
 
 /*タスクと完了したかがどうかが含まれる配列を受取り完了したら返す
@@ -47,6 +50,7 @@ TODOを完了状態にする
 function done(task) {
 	if (tasks.has(task)) {
 		tasks.set(task, true);
+		saveTasks();
 	}
 }
 
@@ -66,6 +70,22 @@ function donelist() {
 */
 function del(task) {
 	tasks.delete(task);
+}
+
+//同期的にファイルから復元
+//ファイルからdateという文字列を読み込みそれをJaon.parseという関数で解釈してJavaScriptの値として連想配列のMapのオブジェクトを作る時渡す
+try {
+	const date = fs.readFileSync(fileName, 'utf8');
+	tasks = new Map(JSON.parse(date));
+} catch (ignore) {
+	console.log(fileName + 'から復元できませんでした')
+}
+
+
+// タスクをファイルに保存する
+//tasksの連想配列をArray.formで配列に変換 Json.stringifyでJsonの文字列に変換同期的にファイルに書き出し
+function saveTasks() {
+	fs.writeFileSync(fileName,JSON.stringify(Array.from(tasks)),'utf8');
 }
 
 
